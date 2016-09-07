@@ -22,7 +22,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Create a new file under `config/initializers/sinopac.rb` with following code:
+```ruby
+OffsitePayments.mode = Rails.env.to_sym
+OffsitePayments::Integrations::Sinopac.setup do |sinopac|
+  sinopac.account       = ENV["SINOPAC_API_USERNAME"]
+  sinopac.api_key_data1 = ENV["SINOPAC_API_KEY_DATA1"]
+  sinopac.api_key_data2 = ENV["SINOPAC_API_KEY_DATA2"]
+  sinopac.api_key_data3 = ENV["SINOPAC_API_KEY_DATA3"]
+end
+```
 
 ## Development
 
