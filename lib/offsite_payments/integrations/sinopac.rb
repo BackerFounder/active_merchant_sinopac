@@ -112,7 +112,7 @@ module OffsitePayments #:nodoc:
 
         # Was this a test transaction?
         def test?
-          params["param3"] == "test"
+          params["Param3"] == "test"
         end
 
         def status
