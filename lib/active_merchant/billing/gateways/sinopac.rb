@@ -185,12 +185,12 @@ module ActiveMerchant #:nodoc:
         }
         # 第一次 POST 一定會失敗，要從伺服器回傳 header 中取出 token 加密後重新送出
         response = HTTParty.post(url, body: param, headers: headers)
-        @transaction.update!(code_log: response.to_json)
+        @transaction.update!(code_log: response["ServerResponse"].to_json)
         unless response.code.eql?(200)
           error_message = "Expected response to be a <200>, but was <#{response.code}>"
           raise HTTParty::ResponseError.new(response), error_message
         end
-        response
+        response["ServerResponse"]
       rescue HTTParty::ResponseError => e
         raise unless (@tries -= 1) > 0
         response = e.response
