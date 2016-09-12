@@ -16,7 +16,7 @@ module ActiveMerchant #:nodoc:
       def initialize(options = {})
         requires!(options, :account, :transaction)
         @account = options.delete(:account)
-        @key_num = Random.rand(3) # 隨機選擇一組 KEY 作為加密用
+        @key_num = Random.rand(3) + 1 # 隨機選擇 1 ~ 3 其中一組 KEY 作為加密用
         @transaction = options.delete(:transaction)
         @authenticate_digest = ""
         @tries = 10
