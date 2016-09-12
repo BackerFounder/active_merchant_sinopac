@@ -71,7 +71,14 @@ module ActiveMerchant #:nodoc:
             <ExpireDate>#{expire_date}</ExpireDate>
             <PayType>A</PayType>
             <PrdtName>#{title}</PrdtName>
+            <Memo></Memo>
+            <PayerName></PayerName>
+            <PayerMobile></PayerMobile>
+            <PayerAddress></PayerAddress>
             <PayerEmail>#{payer_email}</PayerEmail>
+            <ReceiverName></ReceiverName>
+            <ReceiverMobile></ReceiverMobile>
+            <ReceiverAddress></ReceiverAddress>
             <ReceiverEmail>#{receiver_email}</ReceiverEmail>
             <Param1>#{param1}</Param1>
             <Param2>#{param2}</Param2>
