@@ -110,6 +110,10 @@ module OffsitePayments #:nodoc:
           params[""]
         end
 
+        def expire_date
+          params["ExpireDate"] || params["Param2"]
+        end
+
         # Was this a test transaction?
         def test?
           params["Param3"] == "test"

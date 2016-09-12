@@ -56,7 +56,7 @@ module ActiveMerchant #:nodoc:
         payer_email = @transaction.user.email
         receiver_email = @transaction.recipient.contact_email
         param1 = @transaction.uuid
-        param2 = @transaction.created_at
+        param2 = expire_date
         param3 = ActiveMerchant::Billing::Base.mode
 
         api_url = test? ? test_url : live_url
