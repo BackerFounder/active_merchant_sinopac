@@ -76,16 +76,20 @@ module OffsitePayments #:nodoc:
       end
 
       class Notification < OffsitePayments::Notification
-        def initialize(post, options = {})
+        def initialize(post, _options = {})
           parse_xml(post) # 先當成 XML parse 看看，如果出錯再當成 query_string parse
-          super
         rescue REXML::ParseException
-          super
           parse(post)
         end
 
+        def success?
+          complete?
+        end
+
         def complete?
-          status.eql?("S")
+          # GET 傳參數時是看 Status
+          # POST 的時候 PayDate 有值並且 RefundFlag 為 N 就當作付款成功
+          status.eql?("S") || !pay_date.to_s.empty? && refund_flag.eql?("N")
         end
 
         def shop_no
@@ -126,13 +130,21 @@ module OffsitePayments #:nodoc:
           params["ExpireDate"] || params["Param2"]
         end
 
-        # Was this a test transaction?
-        def test?
-          params["Param3"] == "test"
+        def pay_date
+          params["PayDate"]
+        end
+
+        def refund_flag
+          params["RefundFlag"]
         end
 
         def status
           params["Status"]
+        end
+
+        # Was this a test transaction?
+        def test?
+          params["Param3"] == "test"
         end
 
         def render_params
@@ -195,16 +207,20 @@ module OffsitePayments #:nodoc:
         private
 
         def parse_xml(post)
-          @params = Hash.from_xml(post)
+          @raw = post.to_s
+          @params = Hash.from_xml(post)["CloseCaseRequest"]
+          @params["OrderNO"] = @params["OrderID"]
         end
 
         # Take the posted data and move the relevant data into a hash
         def parse(post)
           @raw = post.to_s
+          @params ||= {}
           @raw.split("&").each do |line|
             key, value = *line.scan(%r{^([A-Za-z0-9_.-]+)\=(.*)$}).flatten
-            params[key] = CGI.unescape(value.to_s) if key.present?
+            @params[key] = CGI.unescape(value.to_s) if key.present?
           end
+          @params["OrderID"] = @params["OrderNO"]
         end
       end
 
