@@ -76,8 +76,20 @@ module OffsitePayments #:nodoc:
       end
 
       class Notification < OffsitePayments::Notification
+        def initialize(post, options = {})
+          parse_xml(post) # 先當成 XML parse 看看，如果出錯再當成 query_string parse
+          super
+        rescue REXML::ParseException
+          super
+          parse(post)
+        end
+
         def complete?
           status.eql?("S")
+        end
+
+        def shop_no
+          params["ShopNO"]
         end
 
         def item_id
@@ -107,7 +119,7 @@ module OffsitePayments #:nodoc:
 
         # the money amount we received in X.2 decimal.
         def gross
-          params[""]
+          params["Amount"]
         end
 
         def expire_date
@@ -121,6 +133,27 @@ module OffsitePayments #:nodoc:
 
         def status
           params["Status"]
+        end
+
+        def render_params
+          {
+            text: response_for_auto_push,
+            status: 200
+          }
+        end
+
+        def response_for_auto_push
+          <<-END.strip_heredoc
+            <?xml version="1.0"?>
+            <CloseCaseResponse>
+              <OrderID>#{item_id}</OrderID>
+              <ShopNO>#{shop_no}</ShopNO>
+              <TSNO>#{transaction_id}</TSNO>
+              <Amount>#{gross}</Amount>
+              <Status>S</Status>
+              <Description></Description>
+            </CloseCaseResponse>
+          END
         end
 
         # Acknowledge the transaction to Sinopac. This method has to be called after a new
@@ -160,6 +193,10 @@ module OffsitePayments #:nodoc:
         end
 
         private
+
+        def parse_xml(post)
+          @params = Hash.from_xml(post)
+        end
 
         # Take the posted data and move the relevant data into a hash
         def parse(post)
