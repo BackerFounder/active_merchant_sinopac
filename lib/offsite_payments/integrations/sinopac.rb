@@ -209,7 +209,7 @@ module OffsitePayments #:nodoc:
         def parse_xml(post)
           @raw = post.to_s
           @params = Hash.from_xml(post)["CloseCaseRequest"]
-          @params["OrderNO"] = @params["OrderID"]
+          @params["OrderNO"] = @params["OrderID"] # AutoPush 送過來的單號欄位是 OrderID，為了方便處理幫它建立一份 OrderNO
         end
 
         # Take the posted data and move the relevant data into a hash
@@ -220,7 +220,7 @@ module OffsitePayments #:nodoc:
             key, value = *line.scan(%r{^([A-Za-z0-9_.-]+)\=(.*)$}).flatten
             @params[key] = CGI.unescape(value.to_s) if key.present?
           end
-          @params["OrderID"] = @params["OrderNO"]
+          @params["OrderID"] = @params["OrderNO"] # 用 GET 傳遞參數時單號欄位是 OrderNO，幫它建立一份 OrderID 與 POST 保持一致性
         end
       end
 
